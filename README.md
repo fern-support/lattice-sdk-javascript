@@ -14,6 +14,7 @@ The Lattice SDK TypeScript library provides convenient access to the Lattice SDK
 - [Support](#support)
 - [Reference](#reference)
 - [Usage](#usage)
+- [Authentication](#authentication)
 - [Request and Response Types](#request-and-response-types)
 - [Exception Handling](#exception-handling)
 - [Streaming Response](#streaming-response)
@@ -52,7 +53,7 @@ For support with this library, please reach out to your Anduril representative.
 
 ## Reference
 
-A full reference for this library is available [here](https://github.com/anduril/lattice-sdk-javascript/blob/HEAD/./reference.md).
+A full reference for this library is available [here](https://github.com/fern-support/lattice-sdk-javascript/blob/HEAD/./reference.md).
 
 ## Usage
 
@@ -61,9 +62,38 @@ Instantiate and use the client with the following:
 ```typescript
 import { LatticeClient } from "@anduril-industries/lattice-sdk";
 
-const client = new LatticeClient({ token: "YOUR_TOKEN" });
-await client.entities.longPollEntityEvents({
-    sessionToken: "sessionToken"
+const client = new LatticeClient({ clientId: "YOUR_CLIENT_ID", clientSecret: "YOUR_CLIENT_SECRET" });
+await client.oAuth2.getToken({});
+```
+
+## Authentication
+
+The SDK supports OAuth authentication with two options:
+
+**Option 1: OAuth Client Credentials Flow**
+
+Use this when you want the SDK to automatically handle OAuth token retrieval and refreshing:
+
+```typescript
+import { LatticeClient } from "@anduril-industries/lattice-sdk";
+
+const client = new LatticeClient({
+    clientId: "YOUR_CLIENT_ID",
+    clientSecret: "YOUR_CLIENT_SECRET",
+    ...
+});
+```
+
+**Option 2: Token Override**
+
+Use this when you already have a valid bearer token and want to skip the OAuth flow:
+
+```typescript
+import { LatticeClient } from "@anduril-industries/lattice-sdk";
+
+const client = new LatticeClient({
+    token: "my-pre-generated-bearer-token",
+    ...
 });
 ```
 
@@ -75,7 +105,7 @@ following namespace:
 ```typescript
 import { Lattice } from "@anduril-industries/lattice-sdk";
 
-const request: Lattice.GetEntityRequest = {
+const request: Lattice.GetTokenRequest = {
     ...
 };
 ```
@@ -89,7 +119,7 @@ will be thrown.
 import { LatticeError } from "@anduril-industries/lattice-sdk";
 
 try {
-    await client.entities.longPollEntityEvents(...);
+    await client.oAuth2.getToken(...);
 } catch (err) {
     if (err instanceof LatticeError) {
         console.log(err.statusCode);
@@ -108,7 +138,7 @@ The SDK uses async iterators, so you can consume the responses using a `for awai
 ```typescript
 import { LatticeClient } from "@anduril-industries/lattice-sdk";
 
-const client = new LatticeClient({ token: "YOUR_TOKEN" });
+const client = new LatticeClient({ clientId: "YOUR_CLIENT_ID", clientSecret: "YOUR_CLIENT_SECRET" });
 const response = await client.entities.streamEntities();
 for await (const item of response) {
     console.log(item);
@@ -556,7 +586,7 @@ List endpoints are paginated. The SDK provides an iterator so that you can simpl
 ```typescript
 import { LatticeClient } from "@anduril-industries/lattice-sdk";
 
-const client = new LatticeClient({ token: "YOUR_TOKEN" });
+const client = new LatticeClient({ clientId: "YOUR_CLIENT_ID", clientSecret: "YOUR_CLIENT_SECRET" });
 const pageableResponse = await client.objects.listObjects();
 for await (const item of pageableResponse) {
     console.log(item);
@@ -588,7 +618,7 @@ const client = new LatticeClient({
     }
 });
 
-const response = await client.entities.longPollEntityEvents(..., {
+const response = await client.oAuth2.getToken(..., {
     headers: {
         'X-Custom-Header': 'custom value'
     }
@@ -600,7 +630,7 @@ const response = await client.entities.longPollEntityEvents(..., {
 If you would like to send additional query string parameters as part of the request, use the `queryParams` request option.
 
 ```typescript
-const response = await client.entities.longPollEntityEvents(..., {
+const response = await client.oAuth2.getToken(..., {
     queryParams: {
         'customQueryParamKey': 'custom query param value'
     }
@@ -622,7 +652,7 @@ A request is deemed retryable when any of the following HTTP status codes is ret
 Use the `maxRetries` request option to configure this behavior.
 
 ```typescript
-const response = await client.entities.longPollEntityEvents(..., {
+const response = await client.oAuth2.getToken(..., {
     maxRetries: 0 // override maxRetries at the request level
 });
 ```
@@ -632,7 +662,7 @@ const response = await client.entities.longPollEntityEvents(..., {
 The SDK defaults to a 60 second timeout. Use the `timeoutInSeconds` option to configure this behavior.
 
 ```typescript
-const response = await client.entities.longPollEntityEvents(..., {
+const response = await client.oAuth2.getToken(..., {
     timeoutInSeconds: 30 // override timeout to 30s
 });
 ```
@@ -643,7 +673,7 @@ The SDK allows users to abort requests at any point by passing in an abort signa
 
 ```typescript
 const controller = new AbortController();
-const response = await client.entities.longPollEntityEvents(..., {
+const response = await client.oAuth2.getToken(..., {
     abortSignal: controller.signal
 });
 controller.abort(); // aborts the request
@@ -655,7 +685,7 @@ The SDK provides access to raw response data, including headers, through the `.w
 The `.withRawResponse()` method returns a promise that results to an object with a `data` and a `rawResponse` property.
 
 ```typescript
-const { data, rawResponse } = await client.entities.longPollEntityEvents(...).withRawResponse();
+const { data, rawResponse } = await client.oAuth2.getToken(...).withRawResponse();
 
 console.log(data);
 console.log(rawResponse.headers['X-My-Header']);
