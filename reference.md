@@ -1,4 +1,68 @@
 # Reference
+## OAuth2
+<details><summary><code>client.oAuth2.<a href="/src/api/resources/oAuth2/client/Client.ts">getToken</a>({ ...params }) -> Lattice.GetTokenResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Exchange authorization code, refresh token, client credentials, or resource owner credentials for an access token
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.oAuth2.getToken({});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Lattice.GetTokenRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `OAuth2Client.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Entities
 <details><summary><code>client.entities.<a href="/src/api/resources/entities/client/Client.ts">publishEntity</a>({ ...params }) -> Lattice.Entity</code></summary>
 <dl>
@@ -914,77 +978,6 @@ await client.objects.getObject({
 <dd>
 
 **request:** `Lattice.GetObjectRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `ObjectsClient.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.objects.<a href="/src/api/resources/objects/client/Client.ts">uploadObject</a>(uploadable, objectPath) -> Lattice.PathMetadata</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Uploads an object. The object must be 1 GiB or smaller.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.objects.uploadObject(createReadStream("path/to/file"), undefined);
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**uploadable:** `core.file.Uploadable` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**objectPath:** `string` 
     
 </dd>
 </dl>
