@@ -269,6 +269,92 @@ export class TasksClient {
     }
 
     /**
+     * Cancels a task by marking it for cancellation in the system.
+     *
+     * This method initiates task cancellation based on the task's current state:
+     * - If the task has not been sent to an agent, it cancels immediately and transitions the task
+     *   to a terminal state (`STATUS_DONE_NOT_OK` with `ERROR_CODE_CANCELLED`).
+     * - If the task has already been sent to an agent, the cancellation request is routed to the agent with a delivery status of `DELIVERY_STATUS_PENDING_CANCEL`.
+     *   The agent is responsible for determining whether cancellation is possible and updating
+     *   the task status accordingly via the `UpdateStatus` endpoint:
+     *   - If the task can be cancelled, the agent should update the task status to `STATUS_DONE_NOT_OK`.
+     *   - If the task cannot be cancelled, the agent should attach an error to the task stating why cancellation is not possible using `UpdateStatus`
+     *     or the returned task object.
+     *
+     * @param {Lattice.TaskCancellation} request
+     * @param {TasksClient.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Lattice.BadRequestError}
+     * @throws {@link Lattice.UnauthorizedError}
+     * @throws {@link Lattice.NotFoundError}
+     *
+     * @example
+     *     await client.tasks.cancelTask({
+     *         taskId: "taskId"
+     *     })
+     */
+    public cancelTask(
+        request: Lattice.TaskCancellation,
+        requestOptions?: TasksClient.RequestOptions,
+    ): core.HttpResponsePromise<Lattice.Task> {
+        return core.HttpResponsePromise.fromPromise(this.__cancelTask(request, requestOptions));
+    }
+
+    private async __cancelTask(
+        request: Lattice.TaskCancellation,
+        requestOptions?: TasksClient.RequestOptions,
+    ): Promise<core.WithRawResponse<Lattice.Task>> {
+        const { taskId, ..._body } = request;
+        const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            _authRequest.headers,
+            this._options?.headers,
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.LatticeEnvironment.Default,
+                `api/v1/tasks/${core.url.encodePathParam(taskId)}/cancel`,
+            ),
+            method: "PUT",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Lattice.Task, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Lattice.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 401:
+                    throw new Lattice.UnauthorizedError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Lattice.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.LatticeError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "PUT", "/api/v1/tasks/{taskId}/cancel");
+    }
+
+    /**
      * Searches for Tasks that match specified filtering criteria and returns matching tasks in paginated form.
      *
      * This method allows filtering tasks based on multiple criteria including:
@@ -353,6 +439,83 @@ export class TasksClient {
         }
 
         return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/api/v1/tasks/query");
+    }
+
+    /**
+     * @beta This endpoint is in pre-release and may change.
+     *
+     * Establishes a server streaming connection that delivers task updates in real-time using Server-Sent Events (SSE).
+     *
+     * The stream delivers all existing non-terminal tasks when first connected, followed by real-time
+     * updates for task creation and status changes. Additionally, heartbeat messages are sent periodically to maintain the connection.
+     */
+    public streamTasks(
+        request: Lattice.TaskStreamRequest = {},
+        requestOptions?: TasksClient.RequestOptions,
+    ): core.HttpResponsePromise<core.Stream<Lattice.StreamTasksResponse>> {
+        return core.HttpResponsePromise.fromPromise(this.__streamTasks(request, requestOptions));
+    }
+
+    private async __streamTasks(
+        request: Lattice.TaskStreamRequest = {},
+        requestOptions?: TasksClient.RequestOptions,
+    ): Promise<core.WithRawResponse<core.Stream<Lattice.StreamTasksResponse>>> {
+        const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            _authRequest.headers,
+            this._options?.headers,
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher<ReadableStream>({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.LatticeEnvironment.Default,
+                "api/v1/tasks/stream",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            responseType: "sse",
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: new core.Stream({
+                    stream: _response.body,
+                    parse: (data) => data as any,
+                    signal: requestOptions?.abortSignal,
+                    eventShape: {
+                        type: "sse",
+                    },
+                }),
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Lattice.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 401:
+                    throw new Lattice.UnauthorizedError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.LatticeError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/api/v1/tasks/stream");
     }
 
     /**
@@ -442,5 +605,95 @@ export class TasksClient {
         }
 
         return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/api/v1/agent/listen");
+    }
+
+    /**
+     * @beta This endpoint is in pre-release and may change.
+     *
+     * Establishes a server streaming connection that delivers tasks to taskable agents for execution
+     * using Server-Sent Events (SSE).
+     *
+     * This method creates a connection from the Tasks API to an agent that streams relevant tasks to the listener agent. The agent receives a stream of tasks that match the entities specified by the tasks' selector criteria.
+     *
+     * The stream delivers three types of requests:
+     * - `ExecuteRequest`: Contains a new task for the agent to execute
+     * - `CancelRequest`: Indicates a task should be canceled
+     * - `CompleteRequest`: Indicates a task should be completed
+     *
+     * Additionally, heartbeat messages are sent periodically to maintain the connection.
+     *
+     * This is recommended method for taskable agents to receive and process tasks in real-time.
+     * Agents should maintain connection to this stream and process incoming tasks according to their capabilities.
+     *
+     * When an agent receives a task, it should update the task status using the `UpdateStatus` endpoint
+     * to provide progress information back to Tasks API.
+     */
+    public streamAsAgent(
+        request: Lattice.AgentStreamRequest = {},
+        requestOptions?: TasksClient.RequestOptions,
+    ): core.HttpResponsePromise<core.Stream<Lattice.StreamAsAgentResponse>> {
+        return core.HttpResponsePromise.fromPromise(this.__streamAsAgent(request, requestOptions));
+    }
+
+    private async __streamAsAgent(
+        request: Lattice.AgentStreamRequest = {},
+        requestOptions?: TasksClient.RequestOptions,
+    ): Promise<core.WithRawResponse<core.Stream<Lattice.StreamAsAgentResponse>>> {
+        const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            _authRequest.headers,
+            this._options?.headers,
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher<ReadableStream>({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.LatticeEnvironment.Default,
+                "api/v1/agent/stream",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            responseType: "sse",
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: new core.Stream({
+                    stream: _response.body,
+                    parse: (data) => data as any,
+                    signal: requestOptions?.abortSignal,
+                    eventShape: {
+                        type: "sse",
+                    },
+                }),
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Lattice.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 401:
+                    throw new Lattice.UnauthorizedError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.LatticeError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/api/v1/agent/stream");
     }
 }

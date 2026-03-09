@@ -3,11 +3,19 @@
 import * as Lattice from "../../src/api/index";
 import { LatticeClient } from "../../src/Client";
 import { mockServerPool } from "../mock-server/MockServerPool";
+import { mockOAuth } from "./mockAuth";
 
 describe("TasksClient", () => {
     test("createTask (1)", async () => {
         const server = mockServerPool.createServer();
-        const client = new LatticeClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
         const rawRequestBody = {};
         const rawResponseBody = {
             version: { taskId: "taskId", definitionVersion: 1, statusVersion: 1 },
@@ -41,6 +49,12 @@ describe("TasksClient", () => {
             replication: { staleTime: "2024-01-15T09:30:00Z" },
             initialEntities: [{ snapshot: true }],
             owner: { entityId: "entityId" },
+            retryStrategy: { fixedRetryStrategy: { retryInterval: "retryInterval" } },
+            deliveryState: {
+                status: "DELIVERY_STATUS_INVALID",
+                error: { code: "DELIVERY_ERROR_CODE_INVALID", message: "message" },
+                deliveryConstraints: { deliverAfter: "2024-01-15T09:30:00Z", deliverBefore: "2024-01-15T09:30:00Z" },
+            },
         };
         server
             .mockEndpoint()
@@ -129,12 +143,35 @@ describe("TasksClient", () => {
             owner: {
                 entityId: "entityId",
             },
+            retryStrategy: {
+                fixedRetryStrategy: {
+                    retryInterval: "retryInterval",
+                },
+            },
+            deliveryState: {
+                status: "DELIVERY_STATUS_INVALID",
+                error: {
+                    code: "DELIVERY_ERROR_CODE_INVALID",
+                    message: "message",
+                },
+                deliveryConstraints: {
+                    deliverAfter: "2024-01-15T09:30:00Z",
+                    deliverBefore: "2024-01-15T09:30:00Z",
+                },
+            },
         });
     });
 
     test("createTask (2)", async () => {
         const server = mockServerPool.createServer();
-        const client = new LatticeClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
         const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
@@ -153,7 +190,14 @@ describe("TasksClient", () => {
 
     test("createTask (3)", async () => {
         const server = mockServerPool.createServer();
-        const client = new LatticeClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
         const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
@@ -172,7 +216,14 @@ describe("TasksClient", () => {
 
     test("getTask (1)", async () => {
         const server = mockServerPool.createServer();
-        const client = new LatticeClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
 
         const rawResponseBody = {
             version: { taskId: "taskId", definitionVersion: 1, statusVersion: 1 },
@@ -206,6 +257,12 @@ describe("TasksClient", () => {
             replication: { staleTime: "2024-01-15T09:30:00Z" },
             initialEntities: [{ snapshot: true }],
             owner: { entityId: "entityId" },
+            retryStrategy: { fixedRetryStrategy: { retryInterval: "retryInterval" } },
+            deliveryState: {
+                status: "DELIVERY_STATUS_INVALID",
+                error: { code: "DELIVERY_ERROR_CODE_INVALID", message: "message" },
+                deliveryConstraints: { deliverAfter: "2024-01-15T09:30:00Z", deliverBefore: "2024-01-15T09:30:00Z" },
+            },
         };
         server
             .mockEndpoint()
@@ -295,12 +352,35 @@ describe("TasksClient", () => {
             owner: {
                 entityId: "entityId",
             },
+            retryStrategy: {
+                fixedRetryStrategy: {
+                    retryInterval: "retryInterval",
+                },
+            },
+            deliveryState: {
+                status: "DELIVERY_STATUS_INVALID",
+                error: {
+                    code: "DELIVERY_ERROR_CODE_INVALID",
+                    message: "message",
+                },
+                deliveryConstraints: {
+                    deliverAfter: "2024-01-15T09:30:00Z",
+                    deliverBefore: "2024-01-15T09:30:00Z",
+                },
+            },
         });
     });
 
     test("getTask (2)", async () => {
         const server = mockServerPool.createServer();
-        const client = new LatticeClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
 
         const rawResponseBody = { key: "value" };
         server
@@ -320,7 +400,14 @@ describe("TasksClient", () => {
 
     test("getTask (3)", async () => {
         const server = mockServerPool.createServer();
-        const client = new LatticeClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
 
         const rawResponseBody = { key: "value" };
         server
@@ -340,7 +427,14 @@ describe("TasksClient", () => {
 
     test("getTask (4)", async () => {
         const server = mockServerPool.createServer();
-        const client = new LatticeClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
 
         const rawResponseBody = { key: "value" };
         server
@@ -360,7 +454,14 @@ describe("TasksClient", () => {
 
     test("updateTaskStatus (1)", async () => {
         const server = mockServerPool.createServer();
-        const client = new LatticeClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
         const rawRequestBody = {};
         const rawResponseBody = {
             version: { taskId: "taskId", definitionVersion: 1, statusVersion: 1 },
@@ -394,6 +495,12 @@ describe("TasksClient", () => {
             replication: { staleTime: "2024-01-15T09:30:00Z" },
             initialEntities: [{ snapshot: true }],
             owner: { entityId: "entityId" },
+            retryStrategy: { fixedRetryStrategy: { retryInterval: "retryInterval" } },
+            deliveryState: {
+                status: "DELIVERY_STATUS_INVALID",
+                error: { code: "DELIVERY_ERROR_CODE_INVALID", message: "message" },
+                deliveryConstraints: { deliverAfter: "2024-01-15T09:30:00Z", deliverBefore: "2024-01-15T09:30:00Z" },
+            },
         };
         server
             .mockEndpoint()
@@ -484,12 +591,35 @@ describe("TasksClient", () => {
             owner: {
                 entityId: "entityId",
             },
+            retryStrategy: {
+                fixedRetryStrategy: {
+                    retryInterval: "retryInterval",
+                },
+            },
+            deliveryState: {
+                status: "DELIVERY_STATUS_INVALID",
+                error: {
+                    code: "DELIVERY_ERROR_CODE_INVALID",
+                    message: "message",
+                },
+                deliveryConstraints: {
+                    deliverAfter: "2024-01-15T09:30:00Z",
+                    deliverBefore: "2024-01-15T09:30:00Z",
+                },
+            },
         });
     });
 
     test("updateTaskStatus (2)", async () => {
         const server = mockServerPool.createServer();
-        const client = new LatticeClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
         const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
@@ -510,7 +640,14 @@ describe("TasksClient", () => {
 
     test("updateTaskStatus (3)", async () => {
         const server = mockServerPool.createServer();
-        const client = new LatticeClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
         const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
@@ -531,7 +668,14 @@ describe("TasksClient", () => {
 
     test("updateTaskStatus (4)", async () => {
         const server = mockServerPool.createServer();
-        const client = new LatticeClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
         const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
@@ -550,9 +694,258 @@ describe("TasksClient", () => {
         }).rejects.toThrow(Lattice.NotFoundError);
     });
 
+    test("cancelTask (1)", async () => {
+        const server = mockServerPool.createServer();
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
+        const rawRequestBody = {};
+        const rawResponseBody = {
+            version: { taskId: "taskId", definitionVersion: 1, statusVersion: 1 },
+            displayName: "displayName",
+            specification: { "@type": "@type" },
+            createdBy: {
+                system: { serviceName: "serviceName", entityId: "entityId", managesOwnScheduling: true },
+                user: { userId: "userId" },
+                team: { entityId: "entityId", members: [{}] },
+            },
+            lastUpdatedBy: {
+                system: { serviceName: "serviceName", entityId: "entityId", managesOwnScheduling: true },
+                user: { userId: "userId" },
+                team: { entityId: "entityId", members: [{}] },
+            },
+            lastUpdateTime: "2024-01-15T09:30:00Z",
+            status: {
+                status: "STATUS_INVALID",
+                taskError: { code: "ERROR_CODE_INVALID", message: "message" },
+                progress: { "@type": "@type" },
+                result: { "@type": "@type" },
+                startTime: "2024-01-15T09:30:00Z",
+                estimate: { "@type": "@type" },
+                allocation: { activeAgents: [{}] },
+            },
+            scheduledTime: "2024-01-15T09:30:00Z",
+            relations: { parentTaskId: "parentTaskId" },
+            description: "description",
+            isExecutedElsewhere: true,
+            createTime: "2024-01-15T09:30:00Z",
+            replication: { staleTime: "2024-01-15T09:30:00Z" },
+            initialEntities: [{ snapshot: true }],
+            owner: { entityId: "entityId" },
+            retryStrategy: { fixedRetryStrategy: { retryInterval: "retryInterval" } },
+            deliveryState: {
+                status: "DELIVERY_STATUS_INVALID",
+                error: { code: "DELIVERY_ERROR_CODE_INVALID", message: "message" },
+                deliveryConstraints: { deliverAfter: "2024-01-15T09:30:00Z", deliverBefore: "2024-01-15T09:30:00Z" },
+            },
+        };
+        server
+            .mockEndpoint()
+            .put("/api/v1/tasks/taskId/cancel")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.tasks.cancelTask({
+            taskId: "taskId",
+        });
+        expect(response).toEqual({
+            version: {
+                taskId: "taskId",
+                definitionVersion: 1,
+                statusVersion: 1,
+            },
+            displayName: "displayName",
+            specification: {
+                "@type": "@type",
+            },
+            createdBy: {
+                system: {
+                    serviceName: "serviceName",
+                    entityId: "entityId",
+                    managesOwnScheduling: true,
+                },
+                user: {
+                    userId: "userId",
+                },
+                team: {
+                    entityId: "entityId",
+                    members: [{}],
+                },
+            },
+            lastUpdatedBy: {
+                system: {
+                    serviceName: "serviceName",
+                    entityId: "entityId",
+                    managesOwnScheduling: true,
+                },
+                user: {
+                    userId: "userId",
+                },
+                team: {
+                    entityId: "entityId",
+                    members: [{}],
+                },
+            },
+            lastUpdateTime: "2024-01-15T09:30:00Z",
+            status: {
+                status: "STATUS_INVALID",
+                taskError: {
+                    code: "ERROR_CODE_INVALID",
+                    message: "message",
+                },
+                progress: {
+                    "@type": "@type",
+                },
+                result: {
+                    "@type": "@type",
+                },
+                startTime: "2024-01-15T09:30:00Z",
+                estimate: {
+                    "@type": "@type",
+                },
+                allocation: {
+                    activeAgents: [{}],
+                },
+            },
+            scheduledTime: "2024-01-15T09:30:00Z",
+            relations: {
+                parentTaskId: "parentTaskId",
+            },
+            description: "description",
+            isExecutedElsewhere: true,
+            createTime: "2024-01-15T09:30:00Z",
+            replication: {
+                staleTime: "2024-01-15T09:30:00Z",
+            },
+            initialEntities: [
+                {
+                    snapshot: true,
+                },
+            ],
+            owner: {
+                entityId: "entityId",
+            },
+            retryStrategy: {
+                fixedRetryStrategy: {
+                    retryInterval: "retryInterval",
+                },
+            },
+            deliveryState: {
+                status: "DELIVERY_STATUS_INVALID",
+                error: {
+                    code: "DELIVERY_ERROR_CODE_INVALID",
+                    message: "message",
+                },
+                deliveryConstraints: {
+                    deliverAfter: "2024-01-15T09:30:00Z",
+                    deliverBefore: "2024-01-15T09:30:00Z",
+                },
+            },
+        });
+    });
+
+    test("cancelTask (2)", async () => {
+        const server = mockServerPool.createServer();
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/api/v1/tasks/taskId/cancel")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.tasks.cancelTask({
+                taskId: "taskId",
+            });
+        }).rejects.toThrow(Lattice.BadRequestError);
+    });
+
+    test("cancelTask (3)", async () => {
+        const server = mockServerPool.createServer();
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/api/v1/tasks/taskId/cancel")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(401)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.tasks.cancelTask({
+                taskId: "taskId",
+            });
+        }).rejects.toThrow(Lattice.UnauthorizedError);
+    });
+
+    test("cancelTask (4)", async () => {
+        const server = mockServerPool.createServer();
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/api/v1/tasks/taskId/cancel")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.tasks.cancelTask({
+                taskId: "taskId",
+            });
+        }).rejects.toThrow(Lattice.NotFoundError);
+    });
+
     test("queryTasks (1)", async () => {
         const server = mockServerPool.createServer();
-        const client = new LatticeClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
         const rawRequestBody = {};
         const rawResponseBody = {
             tasks: [
@@ -596,7 +989,14 @@ describe("TasksClient", () => {
 
     test("queryTasks (2)", async () => {
         const server = mockServerPool.createServer();
-        const client = new LatticeClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
         const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
@@ -615,7 +1015,14 @@ describe("TasksClient", () => {
 
     test("queryTasks (3)", async () => {
         const server = mockServerPool.createServer();
-        const client = new LatticeClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
         const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
@@ -634,7 +1041,14 @@ describe("TasksClient", () => {
 
     test("queryTasks (4)", async () => {
         const server = mockServerPool.createServer();
-        const client = new LatticeClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
         const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
@@ -651,9 +1065,97 @@ describe("TasksClient", () => {
         }).rejects.toThrow(Lattice.NotFoundError);
     });
 
+    test("streamTasks (1)", async () => {
+        const server = mockServerPool.createServer();
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
+        const rawRequestBody = {};
+        const rawResponseBody = 'event: \ndata: {"timestamp":"timestamp","event":"heartbeat"}\n\n';
+        server
+            .mockEndpoint()
+            .post("/api/v1/tasks/stream")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .sseBody(rawResponseBody)
+            .build();
+
+        const response = await client.tasks.streamTasks();
+        const events: unknown[] = [];
+        for await (const event of response) {
+            events.push(event);
+        }
+        expect(events).toEqual([{ event: "heartbeat", timestamp: "timestamp" }]);
+    });
+
+    test("streamTasks (2)", async () => {
+        const server = mockServerPool.createServer();
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/api/v1/tasks/stream")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.tasks.streamTasks();
+        }).rejects.toThrow(Lattice.BadRequestError);
+    });
+
+    test("streamTasks (3)", async () => {
+        const server = mockServerPool.createServer();
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/api/v1/tasks/stream")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(401)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.tasks.streamTasks();
+        }).rejects.toThrow(Lattice.UnauthorizedError);
+    });
+
     test("listenAsAgent (1)", async () => {
         const server = mockServerPool.createServer();
-        const client = new LatticeClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
         const rawRequestBody = {};
         const rawResponseBody = {
             executeRequest: {
@@ -703,7 +1205,14 @@ describe("TasksClient", () => {
 
     test("listenAsAgent (2)", async () => {
         const server = mockServerPool.createServer();
-        const client = new LatticeClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
         const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
@@ -722,7 +1231,14 @@ describe("TasksClient", () => {
 
     test("listenAsAgent (3)", async () => {
         const server = mockServerPool.createServer();
-        const client = new LatticeClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
         const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
@@ -736,6 +1252,87 @@ describe("TasksClient", () => {
 
         await expect(async () => {
             return await client.tasks.listenAsAgent();
+        }).rejects.toThrow(Lattice.UnauthorizedError);
+    });
+
+    test("streamAsAgent (1)", async () => {
+        const server = mockServerPool.createServer();
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
+        const rawRequestBody = {};
+        const rawResponseBody = 'event: \ndata: {"timestamp":"timestamp","event":"heartbeat"}\n\n';
+        server
+            .mockEndpoint()
+            .post("/api/v1/agent/stream")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .sseBody(rawResponseBody)
+            .build();
+
+        const response = await client.tasks.streamAsAgent();
+        const events: unknown[] = [];
+        for await (const event of response) {
+            events.push(event);
+        }
+        expect(events).toEqual([{ event: "heartbeat", timestamp: "timestamp" }]);
+    });
+
+    test("streamAsAgent (2)", async () => {
+        const server = mockServerPool.createServer();
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/api/v1/agent/stream")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.tasks.streamAsAgent();
+        }).rejects.toThrow(Lattice.BadRequestError);
+    });
+
+    test("streamAsAgent (3)", async () => {
+        const server = mockServerPool.createServer();
+        mockOAuth(server);
+
+        const client = new LatticeClient({
+            maxRetries: 0,
+            clientId: "test_client_id",
+            clientSecret: "test_client_secret",
+            environment: server.baseUrl,
+        });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/api/v1/agent/stream")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(401)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.tasks.streamAsAgent();
         }).rejects.toThrow(Lattice.UnauthorizedError);
     });
 });
