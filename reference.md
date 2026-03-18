@@ -331,7 +331,7 @@ await client.entities.longPollEntityEvents({
 </dl>
 </details>
 
-<details><summary><code>client.entities.<a href="/src/api/resources/entities/client/Client.ts">streamEntities</a>({ ...params }) -> core.Stream<Lattice.StreamEntitiesResponse></code></summary>
+<details><summary><code>client.entities.<a href="/src/api/resources/entities/client/Client.ts">streamEntities</a>({ ...params }) -> core.Stream&lt;Lattice.StreamEntitiesResponse&gt;</code></summary>
 <dl>
 <dd>
 
@@ -633,6 +633,81 @@ await client.tasks.updateTaskStatus({
 </dl>
 </details>
 
+<details><summary><code>client.tasks.<a href="/src/api/resources/tasks/client/Client.ts">cancelTask</a>({ ...params }) -> Lattice.Task</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Cancels a task by marking it for cancellation in the system.
+
+This method initiates task cancellation based on the task's current state:
+- If the task has not been sent to an agent, it cancels immediately and transitions the task
+  to a terminal state (`STATUS_DONE_NOT_OK` with `ERROR_CODE_CANCELLED`).
+- If the task has already been sent to an agent, the cancellation request is routed to the agent with a delivery status of `DELIVERY_STATUS_PENDING_CANCEL`.
+  The agent is responsible for determining whether cancellation is possible and updating
+  the task status accordingly via the `UpdateStatus` endpoint:
+  - If the task can be cancelled, the agent should update the task status to `STATUS_DONE_NOT_OK`.
+  - If the task cannot be cancelled, the agent should attach an error to the task stating why cancellation is not possible using `UpdateStatus`
+    or the returned task object.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.tasks.cancelTask({
+    taskId: "taskId"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Lattice.TaskCancellation` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `TasksClient.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 <details><summary><code>client.tasks.<a href="/src/api/resources/tasks/client/Client.ts">queryTasks</a>({ ...params }) -> Lattice.TaskQueryResults</code></summary>
 <dl>
 <dd>
@@ -691,6 +766,75 @@ await client.tasks.queryTasks();
 <dd>
 
 **request:** `Lattice.TaskQuery` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `TasksClient.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.tasks.<a href="/src/api/resources/tasks/client/Client.ts">streamTasks</a>({ ...params }) -> core.Stream&lt;Lattice.StreamTasksResponse&gt;</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Establishes a server streaming connection that delivers task updates in real-time using Server-Sent Events (SSE).
+
+The stream delivers all existing non-terminal tasks when first connected, followed by real-time
+updates for task creation and status changes. Additionally, heartbeat messages are sent periodically to maintain the connection.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+const response = await client.tasks.streamTasks();
+for await (const item of response) {
+    console.log(item);
+}
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Lattice.TaskStreamRequest` 
     
 </dd>
 </dl>
@@ -792,8 +936,90 @@ await client.tasks.listenAsAgent();
 </dl>
 </details>
 
+<details><summary><code>client.tasks.<a href="/src/api/resources/tasks/client/Client.ts">streamAsAgent</a>({ ...params }) -> core.Stream&lt;Lattice.StreamAsAgentResponse&gt;</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Establishes a server streaming connection that delivers tasks to taskable agents for execution
+using Server-Sent Events (SSE).
+
+This method creates a connection from the Tasks API to an agent that streams relevant tasks to the listener agent. The agent receives a stream of tasks that match the entities specified by the tasks' selector criteria.
+
+The stream delivers three types of requests:
+- `ExecuteRequest`: Contains a new task for the agent to execute
+- `CancelRequest`: Indicates a task should be canceled
+- `CompleteRequest`: Indicates a task should be completed
+
+Additionally, heartbeat messages are sent periodically to maintain the connection.
+
+This is recommended method for taskable agents to receive and process tasks in real-time.
+Agents should maintain connection to this stream and process incoming tasks according to their capabilities. 
+
+When an agent receives a task, it should update the task status using the `UpdateStatus` endpoint
+to provide progress information back to Tasks API.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+const response = await client.tasks.streamAsAgent();
+for await (const item of response) {
+    console.log(item);
+}
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Lattice.AgentStreamRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `TasksClient.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Objects
-<details><summary><code>client.objects.<a href="/src/api/resources/objects/client/Client.ts">listObjects</a>({ ...params }) -> core.Page<Lattice.PathMetadata, Lattice.ListResponse></code></summary>
+<details><summary><code>client.objects.<a href="/src/api/resources/objects/client/Client.ts">listObjects</a>({ ...params }) -> core.Page&lt;Lattice.PathMetadata, Lattice.ListResponse&gt;</code></summary>
 <dl>
 <dd>
 
@@ -1133,3 +1359,68 @@ await client.objects.getObjectMetadata({
 </dd>
 </dl>
 </details>
+
+## oauth
+<details><summary><code>client.oauth.<a href="/src/api/resources/oauth/client/Client.ts">getToken</a>({ ...params }) -> Lattice.GetTokenResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Gets a new short-lived token using the specified client credentials
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.oauth.getToken({});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Lattice.GetTokenRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `OauthClient.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+

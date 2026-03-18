@@ -1,8 +1,10 @@
 {
-    "cliVersion": "3.17.0",
+    "cliVersion": "4.34.0",
     "generatorName": "fernapi/fern-typescript-node-sdk",
-    "generatorVersion": "3.39.3",
+    "generatorVersion": "3.59.2",
     "generatorConfig": {
         "namespaceExport": "Lattice"
-    }
+    },
+    "originGitCommit": "f08b021b9e4fa0f31f6da6f438d0130a6251aca3",
+    "sdkVersion": "4.3.2"
 }
