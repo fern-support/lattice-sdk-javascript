@@ -14,6 +14,7 @@ The Lattice SDK TypeScript library provides convenient access to the Lattice SDK
 - [Support](#support)
 - [Reference](#reference)
 - [Usage](#usage)
+- [Authentication](#authentication)
 - [Request and Response Types](#request-and-response-types)
 - [Exception Handling](#exception-handling)
 - [Streaming Response](#streaming-response)
@@ -21,6 +22,7 @@ The Lattice SDK TypeScript library provides convenient access to the Lattice SDK
 - [Binary Response](#binary-response)
 - [Pagination](#pagination)
 - [Advanced](#advanced)
+  - [Subpackage Exports](#subpackage-exports)
   - [Additional Headers](#additional-headers)
   - [Additional Query String Parameters](#additional-query-string-parameters)
   - [Retries](#retries)
@@ -28,6 +30,7 @@ The Lattice SDK TypeScript library provides convenient access to the Lattice SDK
   - [Aborting Requests](#aborting-requests)
   - [Access Raw Response Data](#access-raw-response-data)
   - [Logging](#logging)
+  - [Custom Fetch](#custom-fetch)
   - [Runtime Compatibility](#runtime-compatibility)
 
 ## Documentation
@@ -52,7 +55,7 @@ For support with this library, please reach out to your Anduril representative.
 
 ## Reference
 
-A full reference for this library is available [here](https://github.com/anduril/lattice-sdk-javascript/blob/HEAD/./reference.md).
+A full reference for this library is available [here](https://github.com/fern-support/lattice-sdk-javascript/blob/HEAD/./reference.md).
 
 ## Usage
 
@@ -61,9 +64,40 @@ Instantiate and use the client with the following:
 ```typescript
 import { LatticeClient } from "@anduril-industries/lattice-sdk";
 
-const client = new LatticeClient({ token: "YOUR_TOKEN" });
+const client = new LatticeClient({ clientId: "YOUR_CLIENT_ID", clientSecret: "YOUR_CLIENT_SECRET" });
 await client.entities.longPollEntityEvents({
     sessionToken: "sessionToken"
+});
+```
+
+## Authentication
+
+The SDK supports OAuth authentication with two options:
+
+**Option 1: OAuth Client Credentials Flow**
+
+Use this when you want the SDK to automatically handle OAuth token retrieval and refreshing:
+
+```typescript
+import { LatticeClient } from "@anduril-industries/lattice-sdk";
+
+const client = new LatticeClient({
+    clientId: "YOUR_CLIENT_ID",
+    clientSecret: "YOUR_CLIENT_SECRET",
+    ...
+});
+```
+
+**Option 2: Token Override**
+
+Use this when you already have a valid bearer token and want to skip the OAuth flow:
+
+```typescript
+import { LatticeClient } from "@anduril-industries/lattice-sdk";
+
+const client = new LatticeClient({
+    token: "my-pre-generated-bearer-token",
+    ...
 });
 ```
 
@@ -108,7 +142,7 @@ The SDK uses async iterators, so you can consume the responses using a `for awai
 ```typescript
 import { LatticeClient } from "@anduril-industries/lattice-sdk";
 
-const client = new LatticeClient({ token: "YOUR_TOKEN" });
+const client = new LatticeClient({ clientId: "YOUR_CLIENT_ID", clientSecret: "YOUR_CLIENT_SECRET" });
 const response = await client.entities.streamEntities();
 for await (const item of response) {
     console.log(item);
@@ -556,7 +590,7 @@ List endpoints are paginated. The SDK provides an iterator so that you can simpl
 ```typescript
 import { LatticeClient } from "@anduril-industries/lattice-sdk";
 
-const client = new LatticeClient({ token: "YOUR_TOKEN" });
+const client = new LatticeClient({ clientId: "YOUR_CLIENT_ID", clientSecret: "YOUR_CLIENT_SECRET" });
 const pageableResponse = await client.objects.listObjects();
 for await (const item of pageableResponse) {
     console.log(item);
@@ -573,6 +607,16 @@ const response = page.response;
 ```
 
 ## Advanced
+
+### Subpackage Exports
+
+This SDK supports direct imports of subpackage clients, which allows JavaScript bundlers to tree-shake and include only the imported subpackage code. This results in much smaller bundle sizes.
+
+```typescript
+import { EntitiesClient } from '@anduril-industries/lattice-sdk/entities';
+
+const client = new EntitiesClient({...});
+```
 
 ### Additional Headers
 
@@ -724,6 +768,26 @@ const logger: logging.ILogger = {
 </details>
 
 
+### Custom Fetch
+
+The SDK provides a low-level `fetch` method for making custom HTTP requests while still
+benefiting from SDK-level configuration like authentication, retries, timeouts, and logging.
+This is useful for calling API endpoints not yet supported in the SDK.
+
+```typescript
+const response = await client.fetch("/v1/custom/endpoint", {
+    method: "GET",
+}, {
+    timeoutInSeconds: 30,
+    maxRetries: 3,
+    headers: {
+        "X-Custom-Header": "custom-value",
+    },
+});
+
+const data = await response.json();
+```
+
 ### Runtime Compatibility
 
 
@@ -738,16 +802,4 @@ The SDK works in the following runtimes:
 - Bun 1.0+
 - React Native
 
-### Customizing Fetch Client
 
-The SDK provides a way for you to customize the underlying HTTP client / Fetch function. If you're running in an
-unsupported environment, this provides a way for you to break glass and ensure the SDK works.
-
-```typescript
-import { LatticeClient } from "@anduril-industries/lattice-sdk";
-
-const client = new LatticeClient({
-    ...
-    fetcher: // provide your implementation here
-});
-```
