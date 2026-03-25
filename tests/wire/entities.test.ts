@@ -2082,7 +2082,7 @@ describe("EntitiesClient", () => {
             environment: server.baseUrl,
         });
         const rawRequestBody = {};
-        const rawResponseBody = 'event: \ndata: {"timestamp":"2024-01-15T09:30:00Z","event":"heartbeat"}\n\n';
+        const rawResponseBody = 'event: \ndata: {"data":{"timestamp":"2024-01-15T09:30:00Z"},"event":"heartbeat"}\n\n';
 
         server
             .mockEndpoint()
@@ -2098,7 +2098,7 @@ describe("EntitiesClient", () => {
         for await (const event of response) {
             events.push(event);
         }
-        expect(events).toEqual([{ event: "heartbeat", timestamp: "2024-01-15T09:30:00Z" }]);
+        expect(events).toEqual([{ event: "heartbeat", data: { timestamp: "2024-01-15T09:30:00Z" } }]);
     });
 
     test("streamEntities (2)", async () => {

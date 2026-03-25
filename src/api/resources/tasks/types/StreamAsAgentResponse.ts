@@ -2,9 +2,6 @@
 
 import type * as Lattice from "../../../index.js";
 
-/**
- * The stream event response.
- */
 export type StreamAsAgentResponse =
     | Lattice.StreamAsAgentResponse.Heartbeat
     | Lattice.StreamAsAgentResponse.AgentRequest;

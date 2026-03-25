@@ -2,4 +2,6 @@
 
 import type * as Lattice from "../index.js";
 
-export interface EntityStreamHeartbeat extends Lattice.HeartbeatObject {}
+export interface EntityStreamHeartbeat {
+    data: Lattice.HeartbeatObject;
+}

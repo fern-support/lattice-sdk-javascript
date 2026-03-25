@@ -2,4 +2,6 @@
 
 import type * as Lattice from "../index.js";
 
-export interface EntityStreamEvent extends Lattice.EntityEvent {}
+export interface EntityStreamEvent {
+    data: Lattice.EntityEvent;
+}
