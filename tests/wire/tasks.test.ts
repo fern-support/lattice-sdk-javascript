@@ -1095,7 +1095,7 @@ describe("TasksClient", () => {
             environment: server.baseUrl,
         });
         const rawRequestBody = {};
-        const rawResponseBody = 'event: \ndata: {"timestamp":"timestamp","event":"heartbeat"}\n\n';
+        const rawResponseBody = 'event: \ndata: {"data":{"timestamp":"timestamp"},"event":"heartbeat"}\n\n';
 
         server
             .mockEndpoint()
@@ -1111,7 +1111,7 @@ describe("TasksClient", () => {
         for await (const event of response) {
             events.push(event);
         }
-        expect(events).toEqual([{ event: "heartbeat", timestamp: "timestamp" }]);
+        expect(events).toEqual([{ event: "heartbeat", data: { timestamp: "timestamp" } }]);
     });
 
     test("streamTasks (2)", async () => {
@@ -1291,7 +1291,7 @@ describe("TasksClient", () => {
             environment: server.baseUrl,
         });
         const rawRequestBody = {};
-        const rawResponseBody = 'event: \ndata: {"timestamp":"timestamp","event":"heartbeat"}\n\n';
+        const rawResponseBody = 'event: \ndata: {"data":{"timestamp":"timestamp"},"event":"heartbeat"}\n\n';
 
         server
             .mockEndpoint()
@@ -1307,7 +1307,7 @@ describe("TasksClient", () => {
         for await (const event of response) {
             events.push(event);
         }
-        expect(events).toEqual([{ event: "heartbeat", timestamp: "timestamp" }]);
+        expect(events).toEqual([{ event: "heartbeat", data: { timestamp: "timestamp" } }]);
     });
 
     test("streamAsAgent (2)", async () => {

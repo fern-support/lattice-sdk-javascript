@@ -2,4 +2,6 @@
 
 import type * as Lattice from "../index.js";
 
-export interface TaskStreamEvent extends Lattice.TaskEventData {}
+export interface TaskStreamEvent {
+    data: Lattice.TaskEventData;
+}

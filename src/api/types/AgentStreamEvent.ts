@@ -2,4 +2,6 @@
 
 import type * as Lattice from "../index.js";
 
-export interface AgentStreamEvent extends Lattice.AgentTaskRequest {}
+export interface AgentStreamEvent {
+    data: Lattice.AgentTaskRequest;
+}

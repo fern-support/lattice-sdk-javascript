@@ -2,9 +2,6 @@
 
 import type * as Lattice from "../../../index.js";
 
-/**
- * The stream event response.
- */
 export type StreamEntitiesResponse = Lattice.StreamEntitiesResponse.Heartbeat | Lattice.StreamEntitiesResponse.Entity;
 
 export namespace StreamEntitiesResponse {
